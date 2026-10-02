@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AVGC Centre | Architectural Massing Viewer</title>
+  <style>
+    :root { --ink:#152822; --muted:#60736b; --paper:#f4f1e9; --sand:#d7c6a4; --olive:#6c8063; --teal:#1d645b; --line:#c8c4b9; --gold:#b98b41; }
+    * { box-sizing:border-box; } body { margin:0; background:var(--paper); color:var(--ink); font:14px/1.35 Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif; }
+    #app { min-height:100vh; display:grid; grid-template-columns:300px minmax(0,1fr); grid-template-rows:auto 1fr; }
+    header { grid-column:1/-1; min-height:76px; padding:17px 28px; display:flex; justify-content:space-between; gap:24px; align-items:center; border-bottom:1px solid var(--line); background:rgba(244,241,233,.95); }
+    .eyebrow { color:var(--teal); font-size:10px; letter-spacing:.15em; text-transform:uppercase; font-weight:700; }
+    h1 { margin:3px 0 0; font-family:Georgia,serif; font-size:25px; font-weight:500; letter-spacing:-.02em; }
+    .header-note { max-width:390px; color:var(--muted); font-size:12px; text-align:right; }
+    aside { overflow:auto; padding:22px 20px; border-right:1px solid var(--line); background:#eeece4; }
+    section + section { margin-top:24px; padding-top:20px; border-top:1px solid var(--line); }
+    h2 { margin:0 0 10px; font-size:11px; letter-spacing:.11em; text-transform:uppercase; color:var(--teal); }
+    .small { margin:0; color:var(--muted); font-size:12px; }
+    .views { display:grid; gap:7px; } button { font:inherit; color:var(--ink); cursor:pointer; }
+    .view { text-align:left; padding:9px 10px; border:1px solid var(--line); background:transparent; border-radius:2px; } .view:hover,.view.active { background:var(--ink); color:#fff; border-color:var(--ink); }
+    .zone { width:100%; display:flex; align-items:center; gap:9px; text-align:left; padding:7px 0; border:0; border-bottom:1px solid rgba(200,196,185,.65); background:transparent; }
+    .zone:hover,.zone.active { color:var(--teal); font-weight:650; } .swatch { width:10px;height:10px; display:inline-block; flex:none; border-radius:50%; background:var(--c); }
+    .badge { display:inline-block; margin:9px 0 0; padding:4px 7px; background:#e3eadf; color:#365b43; font-size:10px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; }
+    #viewer { position:relative; min-height:640px; overflow:hidden; background:linear-gradient(145deg,#dbe4dc,#f4f1e9 68%); } canvas { position:absolute; inset:0; width:100%; height:100%; display:block; }
+    #zone-title { position:absolute; left:28px; bottom:27px; max-width:360px; padding:15px 17px; border-left:3px solid var(--teal); background:rgba(244,241,233,.9); box-shadow:0 8px 25px rgba(34,46,39,.08); }
+    #zone-title strong { display:block; font-family:Georgia,serif; font-size:19px; font-weight:500; } #zone-title span { display:block; margin-top:3px; color:var(--muted); font-size:12px; }
+    #compass { position:absolute; right:23px; top:22px; width:52px; height:52px; border:1px solid rgba(21,40,34,.35); border-radius:50%; display:grid; place-items:center; color:var(--teal); font-weight:700; font-size:12px; }
+    #compass:before { content:""; position:absolute; top:8px; border-left:5px solid transparent; border-right:5px solid transparent; border-bottom:14px solid var(--teal); }
+    #hint { position:absolute; right:25px; bottom:22px; color:#40544b; font-size:11px; background:rgba(244,241,233,.74); padding:6px 9px; }
+    .legend { display:grid; grid-template-columns:1fr 1fr; gap:7px; font-size:11px; color:var(--muted); } .legend div:before { content:""; display:inline-block;width:9px;height:9px;margin-right:6px;background:var(--c); }
+    @media (max-width:760px) { #app{display:block} header{padding:15px 18px;align-items:flex-start}.header-note{display:none} aside{border-right:0;border-bottom:1px solid var(--line);padding:16px 18px}.views{grid-template-columns:1fr 1fr}.zones{display:grid;grid-template-columns:1fr 1fr;gap:0 14px} section+section{margin-top:16px;padding-top:15px} #viewer{height:72vh;min-height:520px}.small{font-size:11px} }
+  </style>
+</head>
+<body>
+<main id="app">
+  <header>
+    <div><div class="eyebrow">Architectural massing study · 25,000 m² site</div><h1>AVGC Centre with Housing & Hostels</h1></div>
+    <div class="header-note">An interactive interpretation of the issued drawings. Use the model to examine programme adjacencies, circulation and the proposed campus composition.</div>
+  </header>
+  <aside>
+    <section><h2>Presentation views</h2><div class="views"><button class="view active" data-view="master">Master plan</button><button class="view" data-view="arrival">Arrival sequence</button><button class="view" data-view="courtyard">Academic courtyard</button><button class="view" data-view="gallery">Gallery & landscape</button></div></section>
+    <section><h2>Programme legend</h2><div class="zones">
+      <button class="zone" data-zone="Academic studios"><i class="swatch" style="--c:#2d7b71"></i>Academic studios</button>
+      <button class="zone" data-zone="Library & incubation"><i class="swatch" style="--c:#739b7a"></i>Library & incubation</button>
+      <button class="zone" data-zone="Auditorium & cafeteria"><i class="swatch" style="--c:#bd8742"></i>Auditorium & cafeteria</button>
+      <button class="zone" data-zone="Exhibition gallery"><i class="swatch" style="--c:#a45a4b"></i>Exhibition / gallery</button>
+      <button class="zone" data-zone="Hostels"><i class="swatch" style="--c:#596fa2"></i>Hostels</button>
+      <button class="zone" data-zone="Housing"><i class="swatch" style="--c:#92745e"></i>Housing</button>
+      <button class="zone" data-zone="Sports & open space"><i class="swatch" style="--c:#59905d"></i>Sports & open space</button>
+    </div></section>
+    <section><h2>Model reading</h2><p class="small">Plan positions, named programme blocks, courts, sports and access are source-derived. Building heights, façade rhythm, planting, parking detail and material palette are restrained 3D assumptions.</p><span class="badge">Source / assumption key included</span></section>
+    <section><h2>Material key</h2><div class="legend"><div style="--c:#e9e4d7">Limestone mass</div><div style="--c:#2d7b71">Glazing / screens</div><div style="--c:#739b7a">Landscape</div><div style="--c:#bd8742">Public volume</div></div></section>
+  </aside>
+  <section id="viewer" aria-label="Interactive three-dimensional AVGC campus model">
+    <canvas id="scene"></canvas><div id="compass">N</div><div id="zone-title"><strong>Campus overview</strong><span>Select a programme zone or choose a presentation view.</span></div><div id="hint">Drag to orbit · scroll / pinch to zoom · click a building to inspect</div>
+  </section>
+</main>
+<!-- The import map is required by OrbitControls when this file is opened directly. -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js"
+  }
+}
+</script>
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js';
+import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/controls/OrbitControls.js';
+const canvas=document.querySelector('#scene'), viewer=document.querySelector('#viewer');
+const scene=new THREE.Scene(); scene.background=new THREE.Color(0xdbe4dc); scene.fog=new THREE.Fog(0xdbe4dc,180,360);
+const camera=new THREE.PerspectiveCamera(40,1,.1,600); const renderer=new THREE.WebGLRenderer({canvas,antialias:true}); renderer.setPixelRatio(Math.min(devicePixelRatio,2)); renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap; renderer.outputColorSpace=THREE.SRGBColorSpace;
+const controls=new OrbitControls(camera,canvas); controls.enableDamping=true; controls.dampingFactor=.055; controls.maxPolarAngle=Math.PI*.485; controls.minDistance=68; controls.maxDistance=250; controls.target.set(0,0,0);
+scene.add(new THREE.HemisphereLight(0xeaf5ee,0x56725c,2.2)); const sun=new THREE.DirectionalLight(0xfff4dd,3.5); sun.position.set(-80,115,40); sun.castShadow=true; sun.shadow.mapSize.set(2048,2048); sun.shadow.camera.left=-130; sun.shadow.camera.right=130; sun.shadow.camera.top=130; sun.shadow.camera.bottom=-130; scene.add(sun);
+const groups={}, pickables=[], mats={ ground:0xd4c49d, road:0x8f9386, path:0xd9d6ca, green:0x6f926d, water:0x87afa5, studio:0x2d7b71, library:0x739b7a, public:0xbd8742, gallery:0xa45a4b, hostel:0x596fa2, housing:0x92745e, pale:0xe7e1d2, dark:0x314b47 };
+function material(c,extra={}){return new THREE.MeshStandardMaterial({color:c,roughness:.77,metalness:0,...extra});}
+function box(x,z,w,d,h,c,zone,name,rot=0){ const g=groups[zone]||(groups[zone]=new THREE.Group()); const mesh=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material(c)); mesh.position.set(x,h/2,z); mesh.rotation.y=rot; mesh.castShadow=true; mesh.receiveShadow=true; mesh.userData={zone,name}; g.add(mesh); pickables.push(mesh); // screen façade
+ if(h>5){ const screen=new THREE.Mesh(new THREE.BoxGeometry(w+.05,h*.53,.12),material(0x244f4b,{transparent:true,opacity:.72}));screen.position.set(x,h*.51,z-d/2-.01);screen.rotation.y=rot;g.add(screen); }
+ return mesh; }
+function slab(x,z,w,d,y,c){const m=new THREE.Mesh(new THREE.BoxGeometry(w,y,d),material(c));m.position.set(x,y/2,z);m.receiveShadow=true;scene.add(m);return m;}
+// Site and circulation: source-derived campus frame, with inferred surfacing and planting.
+slab(0,0,148,178,.6,mats.ground); slab(-57,0,9,162,.75,mats.road); slab(25,-73,106,8,.75,mats.road); slab(61,28,8,126,.75,mats.road); slab(-6,25,6,123,.8,mats.path); slab(25,-6,92,4,.8,mats.path);
+// Academic cluster / north-west (source-derived plan arrangement)
+for(const [x,z,label] of [[-33,59,'B.Des AVFX studio'],[-11,59,'B.Des AVFX studio'],[11,59,'B.Des AVFX studio'],[33,59,'B.Des AVFX studio'],[-33,29,'B.Des AVFX studio'],[-11,29,'B.Des AVFX studio'],[11,29,'B.Des AVFX studio'],[33,29,'B.Des AVFX studio']]) box(x,z,17,13,12,mats.studio,'Academic studios',label);
+box(-36,44,16,20,13,mats.library,'Library & incubation','Incubation + co-working'); box(-16,44,16,20,15,mats.library,'Library & incubation','Library');
+box(6,44,27,22,10,mats.pale,'Academic studios','Academic commons');
+// Public cultural spine
+box(-2,-2,30,23,10,mats.public,'Auditorium & cafeteria','Cafeteria + student lounge'); box(25,-2,30,30,15,mats.public,'Auditorium & cafeteria','Screening / preview auditorium · 500 m²');
+box(49,-20,27,17,9,mats.gallery,'Exhibition gallery','Exhibition / showcase gallery');
+// second academic wing identified in detailed plan
+for(const [x,z,name] of [[-30,85,'Diploma / B.Des CDA'],[-8,85,'Diploma / B.Des CDA'],[14,85,'Diploma / CDA studio'],[36,85,'M.Des GD studio'],[-29,71,'Game design studio'],[-7,71,'Game design studio'],[15,71,'Crash course / GD studio'],[37,71,'M.Des GD studio']]) box(x,z,17,11,11,mats.studio,'Academic studios',name);
+box(39,47,12,15,12,mats.studio,'Academic studios','VR / AR lab'); box(53,47,17,15,12,mats.studio,'Academic studios','M.Des AVFX / Motion capture'); box(34,29,21,12,9,mats.library,'Library & incubation','Faculty room / HODs'); box(54,29,13,12,10,mats.library,'Library & incubation','Render farm / data centre');
+// Hostels along west edge, as visible on site plan
+for(const [x,z,n] of [[-49,-23,'Hostel A'],[-49,-45,'Hostel B'],[-49,-65,'Hostel C']]) { box(x,z,19,12,21,mats.hostel,'Hostels',n); box(x-10,z,3,12,16,mats.hostel,'Hostels',n+' core'); }
+// Housing bars along south, preserving plan band
+for(const [x,z,n] of [[-28,-77,'Faculty housing 1'],[5,-77,'Faculty housing 2'],[37,-77,'Faculty housing 3']]) box(x,z,26,12,13,mats.housing,'Housing',n,.08);
+// Sports / courts shown in plan
+function court(x,z,w,d,label){slab(x,z,w,d,.9,0x507d54); const l=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(w,.08,d)),new THREE.LineBasicMaterial({color:0xe9eadf}));l.position.set(x,.96,z);scene.add(l);const m=new THREE.Mesh(new THREE.RingGeometry(2.2,2.45,28),material(0xe9eadf));m.rotation.x=-Math.PI/2;m.position.set(x,.99,z);scene.add(m);}
+court(-12,-40,30,19,'Court'); court(45,-61,32,21,'Court'); court(4,-41,22,19,'Tennis');
+// Landscape / trees: inferred planting follows open courts and circulation only
+const trunk=material(0x735945), leaf=material(0x547f56); function tree(x,z,s=1){const t=new THREE.Mesh(new THREE.CylinderGeometry(.35,.45,3*s,7),trunk);t.position.set(x,1.7*s,z);t.castShadow=true;scene.add(t);const crown=new THREE.Mesh(new THREE.SphereGeometry(2.2*s,10,8),leaf);crown.position.set(x,4.3*s,z);crown.castShadow=true;scene.add(crown);} [[-55,75],[-55,53],[-55,24],[-55,7],[-55,-5],[-55,-36],[-55,-58],[56,62],[56,42],[56,10],[56,-3],[56,-35],[24,15],[17,16],[8,15],[45,4],[44,9],[35,13],[-1,-53],[-18,-53],[18,-53]].forEach((p,i)=>tree(p[0],p[1],i%3?1:.8));
+// arrival marker and circular landscape courts, visible in source site layout
+for(const [x,z,r] of [[32,28,8],[32,1,7]]) {const ring=new THREE.Mesh(new THREE.RingGeometry(r-.8,r,40),material(0xb8c39f));ring.rotation.x=-Math.PI/2;ring.position.set(x,1.01,z);scene.add(ring); tree(x,z,.7);}
+// thin perimeter
+const fence=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(146,1,176)),new THREE.LineBasicMaterial({color:0x65786d})); fence.position.y=1;scene.add(fence);
+Object.values(groups).forEach(g=>scene.add(g));
+const info={
+ 'Academic studios':['Academic studios','Source-derived: AVFX, Game Design and Comic Design & Animation teaching bars; VR/AR, motion capture and specialist studios are grouped in the detailed plan.'],
+ 'Library & incubation':['Library, faculty & incubation','Source-derived: library and incubation/co-working sit at the academic heart. Height and façade character are inferred for the massing study.'],
+ 'Auditorium & cafeteria':['Public learning commons','Source-derived: cafeteria/student lounge and the 500 m² screening/preview auditorium form the central public anchor.'],
+ 'Exhibition gallery':['Exhibition / showcase gallery','Source-derived location and programme. The gallery roofline and glazed public face are an inferred architectural expression.'],
+ 'Hostels':['Hostels','Source-derived hostel zone along the west site edge. Storey count, room façade cadence and cores are inferred.'],
+ 'Housing':['Housing','Source-derived residential bars at the southern edge. Massing height and façade treatment are inferred.'],
+ 'Sports & open space':['Sports & open space','Source-derived courts and open recreational grounds. Surface, trees and shade planting are inferred.'] };
+function show(zone){document.querySelectorAll('.zone').forEach(b=>b.classList.toggle('active',b.dataset.zone===zone));Object.entries(groups).forEach(([key,g])=>g.children.forEach(o=>{if(o.isMesh&&o.material) {o.material.emissive.setHex(key===zone?0x204a3d:0x000000);o.material.emissiveIntensity=key===zone?.28:0;}}));const [a,b]=info[zone]||['Campus overview','Select a programme zone or choose a presentation view.'];document.querySelector('#zone-title').innerHTML='<strong>'+a+'</strong><span>'+b+'</span>';}
+const views={master:{p:[105,128,140],t:[0,0,0]},arrival:{p:[95,35,-112],t:[14,6,-35]},courtyard:{p:[-72,31,72],t:[-8,7,43]},gallery:{p:[105,32,-3],t:[39,5,-14]}};
+let anim=null; function go(view){const v=views[view];const start=camera.position.clone(),target=controls.target.clone(),end=new THREE.Vector3(...v.p),to=new THREE.Vector3(...v.t),begin=performance.now();function tick(now){const q=Math.min(1,(now-begin)/1150),e=q<.5?2*q*q:1-Math.pow(-2*q+2,2)/2;camera.position.lerpVectors(start,end,e);controls.target.lerpVectors(target,to,e);if(q<1)anim=requestAnimationFrame(tick);}if(anim)cancelAnimationFrame(anim);anim=requestAnimationFrame(tick);}
+document.querySelectorAll('.view').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));b.classList.add('active');go(b.dataset.view);}));document.querySelectorAll('.zone').forEach(b=>b.addEventListener('click',()=>show(b.dataset.zone)));
+const ray=new THREE.Raycaster(),pointer=new THREE.Vector2();canvas.addEventListener('pointerdown',e=>{if(Math.abs(e.movementX)+Math.abs(e.movementY)>5)return;const r=canvas.getBoundingClientRect();pointer.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);ray.setFromCamera(pointer,camera);const hit=ray.intersectObjects(pickables)[0];if(hit)show(hit.object.userData.zone);});
+function resize(){const r=viewer.getBoundingClientRect();camera.aspect=r.width/r.height;camera.updateProjectionMatrix();renderer.setSize(r.width,r.height,false);}new ResizeObserver(resize).observe(viewer);resize();camera.position.set(...views.master.p);controls.target.set(...views.master.t);
+function loop(){controls.update();renderer.render(scene,camera);requestAnimationFrame(loop);}loop();
+</script>
+</body>
+</html>
